@@ -1,0 +1,73 @@
+///PROFESOR
+curl -X POST http://localhost:5555/auth/registro \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nombre": "profesor1",
+    "password": "123456",
+    "tipo": "profesor"
+  }'
+
+//login
+  curl -X POST http://localhost:5555/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nombre": "profesor1",
+    "password": "123456"
+  }'
+
+
+
+//crear curso
+  curl -X POST http://localhost:5555/profesor/cursos \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer TOKENDEPROFESOR" \
+  -d '{"nombre":"Matemáticas Avanzadas"}'
+
+//VER CURSOS DADOS
+ curl -X GET http://localhost:5555/profesor/cursos \
+  -H "Content-Type: application/Json" \
+  -H "Authorization: Beare TokenDElprofe
+
+
+
+/crear clase
+curl -X POST http://localhost:5555/profesor/clases \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXUyJ9.eyJpZCI6IjEiLCJpc3MiOiJhdXRoMCIsInRpcG8iOiJwcm9mZXNvciJ9.IvNOwzyc0eUGgXySzfskczMi1m5VZZVAt1FojTlc_sA" \
+  -H "Content-Type: application/json" \
+  -d '{           
+    "curso_id": 1,
+    "titulo": "Redes Neuronales",
+    "contenido": "Conceptos básicos de perceptrones",
+    "url_youtube": "https://youtu.be/ejemplo_ia"
+  }'
+
+
+
+//crear estudiante
+curl -X POST http://localhost:5555/auth/registro \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nombre": "José",
+    "password": "TeAmoPingu",
+    "tipo": "estudiante"
+  }'
+
+
+//login estudiante
+  curl -X POST http://localhost:5555/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nombre": "profesor1",
+    "password": "123456"
+  }'
+
+
+
+//Inscribirse a curso
+# Inscribirse en curso con ID=1
+curl -X POST http://localhost:5555/estudiante/cursos \
+  -H "Authorization: Bearer TOKENESTUDIANTE" \
+  -H "Content-Type: application/json" \
+  -d '{"curso_id": 1}'
+
+
