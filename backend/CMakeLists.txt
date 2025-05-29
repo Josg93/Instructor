@@ -22,6 +22,7 @@ file(GLOB_RECURSE SOURCES
 
 # Asegúrate de incluir main.cpp en tus fuentes
 set(SOURCES
+    filters/CorsFilter.cc
     src/Usuario.cpp
     src/Estudiante.cpp
     src/Profesor.cpp
@@ -56,6 +57,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     services
     controllers
     utils
+    filters
     ${JSONCPP_INCLUDE_DIRS}
     ${JWT_CPP_INCLUDE_DIRS}
 )

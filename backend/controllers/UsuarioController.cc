@@ -7,6 +7,7 @@ void UsuarioController::asyncHandleHttpRequest(
     std::function<void(const HttpResponsePtr&)>&& callback
 ) {
     try {
+        
         auto usuarios = UsuarioService::listarUsuarios();
         Json::Value array(Json::arrayValue);
         

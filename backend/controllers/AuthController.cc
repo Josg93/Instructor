@@ -2,10 +2,13 @@
 #include "UsuarioService.hpp"
 #include <jwt-cpp/jwt.h>
 
+
 void AuthController::asyncHandleHttpRequest(
     const HttpRequestPtr& req,
     std::function<void(const HttpResponsePtr&)>&& callback
 ) {
+
+
     auto json = req->getJsonObject();
     
 

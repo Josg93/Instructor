@@ -6,6 +6,7 @@
 
 void EstudianteController::asyncHandleHttpRequest(const HttpRequestPtr& req,  std::function<void(const HttpResponsePtr&)>&& callback) {
     try {
+      
         //La validacion del token devuelve el Id del usuario que esta haciendo solicitud
          auto Id = JWT::validarToken(req);
 
