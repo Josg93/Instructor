@@ -1,0 +1,81 @@
+:root {
+  --yellow-primary: #F9C80E;
+  --yellow-soft: #FFE566;
+  --black: #1A1A1A;
+  --dark-gray: #333333;
+  --medium-gray: #BFBFBF;
+  --light-gray: #E6E6E6;
+  --white: #FFFFFF;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: var(--light-gray);
+  color: var(--black);
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--white);
+}
+
+.login-form,
+.register-form {
+  max-width: 400px;
+  margin: 100px auto;
+  padding: 2rem;
+  background-color: var(--white);
+  border: 1px solid var(--medium-gray);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.login-form h2,
+.register-form h2 {
+  text-align: center;
+  color: var(--black);
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin: 12px 0;
+  border: 1px solid var(--medium-gray);
+  border-radius: 8px;
+  background-color: var(--light-gray);
+  color: var(--dark-gray);
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  background-color: var(--yellow-primary);
+  border: none;
+  border-radius: 8px;
+  color: var(--black);
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: var(--yellow-soft);
+}
+
+.error {
+  color: red;
+  text-align: center;
+}
+
+a,
+button[role='link'] {
+  background: none;
+  border: none;
+  color: var(--dark-gray);
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
