@@ -3,6 +3,7 @@
 #include <vector>
 #include <fstream>
 
+//Funcion para iniciar los directorios y archivos Txt para guardar los datos;
 void initDataDirectory() {
     try {
         const std::string dataDir = "data";
@@ -39,7 +40,7 @@ void initDataDirectory() {
 int main() {
 
     initDataDirectory();
-    
+    std::cout << "Iniciado esa maldad. Escuchando en el puerto 5555 :D" << std::endl ;
     //Set HTTP listener address and port
     drogon::app().addListener("0.0.0.0", 5555);
     //Load config file

@@ -1,0 +1,2 @@
+profesor,profesor1,123456
+estudiante,José,TeAmoPingu
