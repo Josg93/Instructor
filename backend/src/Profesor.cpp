@@ -1,7 +1,7 @@
 #include "Profesor.hpp"
 
-Profesor::Profesor(const std::string& nombre, const std::string& password)
-    : Usuario(nombre, password) {}
+Profesor::Profesor(const std::string& nombre,const std::string& email ,  const std::string& password)
+    : Usuario(nombre,email,password) {}
 
 std::string Profesor::getTipo() const { return "profesor"; }
 

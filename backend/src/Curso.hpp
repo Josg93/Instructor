@@ -24,10 +24,11 @@ public:
     int getId() const;
     std::string getNombre() const;
     int getProfesorId() const;
+    std::vector<std::tuple<int,float,float,float,float>>& getEstudiantes();
 
     // Estudiantes
     void inscribirEstudiante(int estudianteId);
-    //void EliminarEstudiante(int EstudianteId);
+    bool EliminarEstudiante(int estudianteId);
     bool estaInscrito(int estudianteId) const;
     
     // Notas

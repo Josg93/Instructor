@@ -1,2 +1,4 @@
 profesor,profesor1,123456
-estudiante,José,TeAmoPingu
+estudiante,Juanito,123
+estudiante,Jesus,123
+estudiante,jesus,123

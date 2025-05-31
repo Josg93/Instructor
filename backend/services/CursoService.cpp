@@ -6,48 +6,6 @@
 std::vector<std::shared_ptr<Curso>> CursoService::cursos;
 static std::vector<std::tuple<int, int, float, float, float, float>> notasCache;
 
-void CursoService::loadCursos()
-{
-    auto parser = [](const std::string& line) -> std::shared_ptr<Curso> {
-        std::istringstream ss(line);
-        std::string sid, nombre, sprofesor;
-        std::getline(ss, sid, ',');
-        std::getline(ss, nombre, ',');
-        std::getline(ss, sprofesor);
-        
-        auto curso = std::make_shared<Curso>(nombre, std::stoi(sprofesor));
-        curso->setId(std::stoi(sid));
-        return curso;
-    };
-    
-    cursos = FileDatabase::loadAll<std::shared_ptr<Curso>>("cursos.txt", parser);
-}
-
-void CursoService::saveCursos()
-{
-    auto serializer = [](const std::shared_ptr<Curso>& c) -> std::string {
-        return std::to_string(c->getId()) + "," + c->getNombre() + "," + std::to_string(c->getProfesorId());
-    };
-    
-    FileDatabase::saveAll<std::shared_ptr<Curso>>("cursos.txt", cursos, serializer);
-}
-
-void CursoService::saveNotas() 
-{
-    std::vector<std::string> lines;
-    for (const auto& nota : notasCache) {
-        std::stringstream ss;
-        ss << std::get<0>(nota) << ","  // curso_id
-           << std::get<1>(nota) << ","  // estudiante_id
-           << std::get<2>(nota) << ","  // nota1
-           << std::get<3>(nota) << ","  // nota2
-           << std::get<4>(nota) << ","  // nota3
-           << std::get<5>(nota);        // nota4
-        lines.push_back(ss.str());
-    }
-    FileDatabase::update("notas.txt", lines);
-}
-//-------------------------------------------------------------
 
 
 //----- METODO MALIGNO DE CREAR CURSO -----------------------------------------------
@@ -95,16 +53,55 @@ bool CursoService::inscribirEstudiante(int cursoId, int estudianteId) {
     }
     return false;
 }
+//-----------------------------------------------------
+bool CursoService::eliminarCurso(int cursoId) 
+{
+    auto it = std::find_if(cursos.begin(), cursos.end(), 
+        [cursoId](const auto& c) { return c->getId() == cursoId; });
+    
+    if (it != cursos.end()) {
+        cursos.erase(it);
+        saveCursos();
+        return true;
+    }
+    return false;
+}
+
+bool CursoService::expulsarEstudiante(int cursoId, int estudianteId) 
+{
+    auto curso = obtenerCursoPorId(cursoId);
+    if (!curso) return false;
+    
+    // Implementar lógica para expulsar estudiante
+    auto& estudiantes = curso->getEstudiantes();
+    auto it = std::remove_if(estudiantes.begin(), estudiantes.end(),
+        [estudianteId](const auto& e) { return std::get<0>(e) == estudianteId; });
+    
+    if (it != estudiantes.end()) {
+        estudiantes.erase(it, estudiantes.end());
+        saveCursos();
+        return true;
+    }
+    return false;
+}
+
+bool CursoService::desinscribirEstudiante(int estudianteId, int cursoId)
+{
+    // Similar a expulsar pero iniciado por el estudiante
+    return expulsarEstudiante(cursoId, estudianteId);
+}
 
 
 //------------------ Listar todos los cursos que existen ----------------------------
-std::vector<std::shared_ptr<Curso>> CursoService::listarCursos() {
+std::vector<std::shared_ptr<Curso>> CursoService::listarCursos() 
+{
     return cursos;
 }
 
 
 //------------------------- Cursos Dados de un profeso
-std::vector<std::shared_ptr<Curso>> CursoService::listarCursosPorProfesor(int profesorId) {
+std::vector<std::shared_ptr<Curso>> CursoService::listarCursosPorProfesor(int profesorId) 
+{
     std::vector<std::shared_ptr<Curso>> resultado;
     for (const auto& c : cursos) {
         if (c->getProfesorId() == profesorId) {
@@ -116,7 +113,8 @@ std::vector<std::shared_ptr<Curso>> CursoService::listarCursosPorProfesor(int pr
 
 
 // ------------------------- Cursos en los que esta un estudiante
-std::vector<std::shared_ptr<Curso>> CursoService::listarCursosPorEstudiante(int estudianteId) {
+std::vector<std::shared_ptr<Curso>> CursoService::listarCursosPorEstudiante(int estudianteId) 
+{
     std::vector<std::shared_ptr<Curso>> resultado;
     for (const auto& c : cursos) {
         if (c->estaInscrito(estudianteId)) {
@@ -128,8 +126,8 @@ std::vector<std::shared_ptr<Curso>> CursoService::listarCursosPorEstudiante(int 
 
 
 //----------------- Metodo para que un profesor asigne una nota--------------
-bool CursoService::asignarNota(int cursoId, int estudianteId, 
-                              int numeroNota, float nota) {
+bool CursoService::asignarNota(int cursoId, int estudianteId,int numeroNota, float nota) 
+{
     if (auto curso = obtenerCursoPorId(cursoId)) {
         try {
             if(numeroNota < 1 || numeroNota > 4)
@@ -205,5 +203,50 @@ bool CursoService::estaInscrito(int usuarioId , int cursoId)
     }
     return false;
 }
+
+
+//---------- Guardar cursos en txt -----------------
+void CursoService::loadCursos()
+{
+    auto parser = [](const std::string& line) -> std::shared_ptr<Curso> {
+        std::istringstream ss(line);
+        std::string sid, nombre, sprofesor;
+        std::getline(ss, sid, ',');
+        std::getline(ss, nombre, ',');
+        std::getline(ss, sprofesor);
+        
+        auto curso = std::make_shared<Curso>(nombre, std::stoi(sprofesor));
+        curso->setId(std::stoi(sid));
+        return curso;
+    };
+    
+    cursos = FileDatabase::loadAll<std::shared_ptr<Curso>>("cursos.txt", parser);
+}
+
+void CursoService::saveCursos()
+{
+    auto serializer = [](const std::shared_ptr<Curso>& c) -> std::string {
+        return std::to_string(c->getId()) + "," + c->getNombre() + "," + std::to_string(c->getProfesorId());
+    };
+    
+    FileDatabase::saveAll<std::shared_ptr<Curso>>("cursos.txt", cursos, serializer);
+}
+
+void CursoService::saveNotas() 
+{
+    std::vector<std::string> lines;
+    for (const auto& nota : notasCache) {
+        std::stringstream ss;
+        ss << std::get<0>(nota) << ","  // curso_id
+           << std::get<1>(nota) << ","  // estudiante_id
+           << std::get<2>(nota) << ","  // nota1
+           << std::get<3>(nota) << ","  // nota2
+           << std::get<4>(nota) << ","  // nota3
+           << std::get<5>(nota);        // nota4
+        lines.push_back(ss.str());
+    }
+    FileDatabase::update("notas.txt", lines);
+}
+//-------------------------------------------------------------
 
 

@@ -1,4 +1,5 @@
 #include <drogon/drogon.h>
+//#include "filters/CorsFilter.h"
 #include <filesystem>
 #include <vector>
 #include <fstream>
@@ -42,10 +43,29 @@ int main() {
     
     //Set HTTP listener address and port
     drogon::app().addListener("0.0.0.0", 5555);
+    std::cout << "Escuchando en el puerto 5555 alias puerto maldad" << std::endl;
+    
+    //drogon::app().registerFilter(std::make_shared<CorsFilter>(new CorsFilter()));
+
+    
+
+    drogon::app().registerPostHandlingAdvice(
+        [](const drogon::HttpRequestPtr& req, const drogon::HttpResponsePtr& resp)
+        {
+            resp->addHeader("Access-Control-Allow-Origin", "*");
+            resp->addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+            resp->addHeader("Access-Control-Allow-Headers", "ContentType , Authorization");
+            resp->addHeader("Access-Control-Allow-Credentials", "true");
+            resp->addHeader("Access-Control-Allow-Max-Age", "86400");
+        }
+    );
+    
     //Load config file
     //drogon::app().loadConfigFile("../config.json");
     //drogon::app().loadConfigFile("../config.yaml");
     //Run HTTP framework,the method will block in the internal event loop
+
+    std::cout << "Iniciando maldad: " << std::endl;
     drogon::app().run();
     return 0;
 }

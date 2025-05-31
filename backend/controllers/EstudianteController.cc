@@ -1,21 +1,19 @@
 #include "EstudianteController.h"
 #include "CursoService.hpp"
 #include "ClaseService.hpp"
+#include "UsuarioService.hpp"
+#include "Utils.hpp"
 #include "../utils/JWT.h"
-#include <cstdlib> // Para std::stoi
+#include <cstdlib> 
+
 
 void EstudianteController::asyncHandleHttpRequest(const HttpRequestPtr& req,  std::function<void(const HttpResponsePtr&)>&& callback) {
     try {
       
-        //La validacion del token devuelve el Id del usuario que esta haciendo solicitud
-         auto Id = JWT::validarToken(req);
-
-        if (!Id) {
-            throw std::runtime_error("Token inválido o no proporcionado");
-        }
-
+        // validacion de Requests y tokens malignos -------------------------------
+        auto Id = JWT::validarToken(req);
+        if (!Id) {throw std::runtime_error("Token inválido o no proporcionado");}
         auto userId = Id.value();
-
         auto json = req->getJsonObject();
 
         //Inscribir estudiante        
@@ -27,14 +25,20 @@ void EstudianteController::asyncHandleHttpRequest(const HttpRequestPtr& req,  st
             Json::Value respJson;
             respJson["status"] = success ? "success" : "error";
             respJson["message"] = success ? "Inscripción exitosa" : "Error al inscribirse";
+
+            auto resp = HttpResponse::newHttpJsonResponse(respJson);
+            if(!success)
+            {
+                resp->setStatusCode(drogon::HttpStatusCode::k500InternalServerError);
+            }
             
-            callback(HttpResponse::newHttpJsonResponse(respJson));
+            callback(resp);
         }
 
     
-            //Listar los cursos en los que está registrado el estudiante
+        //Listar los cursos en los que está registrado el estudiante
         else if (req->path() == "/estudiante/cursos" && req->method() == Get)
-         {
+        {
             auto cursos = CursoService::listarCursosPorEstudiante(userId);
             Json::Value array(Json::arrayValue);
             
@@ -51,60 +55,30 @@ void EstudianteController::asyncHandleHttpRequest(const HttpRequestPtr& req,  st
         //Obtener Notas del estudiante
         else if (req->path() == "/estudiante/notas" && req->method() == Get) 
         { 
-            std::string cursoIdStr = req->getParameter("curso_id");
-            if(cursoIdStr.empty()) cursoIdStr = "0";
-            int cursoId = std::stoi(cursoIdStr);
-            
+            auto cursoId = json->get("curso_id" ,0).asInt();
             auto notas = CursoService::obtenerNotas(cursoId, userId);
             
             Json::Value response;
-            if (notas) {
+            auto resp = HttpResponse::newHttpJsonResponse(response);
+            if (notas) 
+            {
                 response["status"] = "success";
                 response["notas"] = Json::Value(Json::arrayValue);
                 auto [n1, n2, n3, n4] = notas.value();
-                response["notas"].append(n1);
-                response["notas"].append(n2);
-                response["notas"].append(n3);
-                response["notas"].append(n4);
-            } else {
+                response["nota 1"].append(n1);
+                response["nota 2"].append(n2);
+                response["nota 3"].append(n3);
+                response["nota 4"].append(n4);
+            } else 
+            {
                 response["status"] = "error";
                 response["message"] = "No se encontraron notas";
+                auto resp = HttpResponse::newHttpJsonResponse(response);
+                resp->setStatusCode(drogon::HttpStatusCode::k500InternalServerError);
             }
-            callback(HttpResponse::newHttpJsonResponse(response));
+            callback(resp);
         }
 
-        //
-        /*
-        else if (req->path() == "/estudiante/clases" && req->method() == Get) 
-        {
-         auto cursoIdStr = req->getParameter("curso_id");
-            if(cursoIdStr.empty()) cursoIdStr = "0"; // asigna un valor por defecto para cursoIdStr
-            
-            int cursoId = std::stoi(cursoIdStr);
-    
-            // Verificar inscripción primero
-            if (!CursoService::estaInscrito(userId, cursoId)) 
-            {
-                throw std::runtime_error("No estás inscrito en este curso");
-            }   
-
-        auto clases = ClaseService::listarClasesPorCurso(cursoId);
-        Json::Value array(Json::arrayValue);
-    
-            for (const auto& c : clases)
-             {
-                Json::Value json;
-                json["id"] = c->getId();
-                json["titulo"] = c->getTitulo();
-                json["url_youtube"] = c->getUrlYouTube();  // Nueva línea
-                array.append(json);
-            }
-    
-    callback(HttpResponse::newHttpJsonResponse(array));
-            }
-        */
-
-        //ver clases:
         // Ver Clases
         else if (req->path() == "/estudiante/clases/ver" && req->method() == Get) 
         {
@@ -137,10 +111,67 @@ void EstudianteController::asyncHandleHttpRequest(const HttpRequestPtr& req,  st
         }
 
 
+        // Desinscribirse de curso 
+        else if(req->path() == "/estudiante/cursos/salir" && req->method() == Delete) 
+        {
+            auto cursoId = json->get("curso_id", 0).asInt();
+
+            bool inscrito = CursoService::estaInscrito(userId, cursoId);
+         if(!inscrito) 
+         {
+            throw std::runtime_error("Usted no se encuentra inscrito en este curso");
+         }
+
+             bool success = CursoService::desinscribirEstudiante(userId, cursoId);
+
+             Json::Value respJson;
+             respJson["status"] = success ? "success" : "error";
+             respJson["message"] = success ? "Desinscrito del curso" : "Error al desinscribirse";
+
+             auto resp = HttpResponse::newHttpJsonResponse(respJson);
+             resp->setStatusCode(success ? k200OK : k500InternalServerError);
+             callback(resp);
+        }
+
+
+        // Actualizar perfil (nombre y contraseña)
+        else if (req->path() == "/estudiante/perfil" && req->method() == Put) 
+        {
+            auto nuevoNombre = json->get("nombre", "").asString();
+            auto nuevoEmail = json->get("email", "").asString();
+            auto nuevaPassword = json->get("password", "").asString();
+
+            if (nuevoNombre.empty() && nuevoEmail.empty() && nuevaPassword.empty()) {
+                throw std::runtime_error("No hay datos para actualizar");
+            }
+
+            auto usuario = UsuarioService::obtenerPorId(userId);
+            if (!usuario) {
+                throw std::runtime_error("Usuario no encontrado");
+            }
+
+            bool success = UsuarioService::actualizarUsuario(
+                userId,
+                nuevoNombre.empty() ? std::nullopt : std::optional<std::string>(nuevoNombre),
+                nuevoEmail.empty() ? std::nullopt : std::optional<std::string>(nuevoEmail),
+                nuevaPassword.empty() ? std::nullopt : std::optional<std::string>(Utils::hashPassword(nuevaPassword))
+            );
+
+            Json::Value respJson;
+            respJson["status"] = success ? "success" : "error";
+            respJson["message"] = success ? "Perfil actualizado" : "Error al actualizar perfil";
+
+            auto resp = HttpResponse::newHttpJsonResponse(respJson);
+            resp->setStatusCode(success ? k200OK : k500InternalServerError);
+            callback(resp);
+        }
+
     } catch (const std::exception& e) {
         Json::Value errorResp;
         errorResp["status"] = "error";
         errorResp["message"] = e.what();
         callback(HttpResponse::newHttpJsonResponse(errorResp));
     }
+
+
 }

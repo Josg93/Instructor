@@ -1,6 +1,8 @@
 #include "ProfesorController.h"
 #include "CursoService.hpp"
 #include "ClaseService.hpp"
+#include "UsuarioService.hpp"
+#include "Utils.hpp"
 #include "JWT.h"
 
 void ProfesorController::asyncHandleHttpRequest(
@@ -70,8 +72,7 @@ void ProfesorController::asyncHandleHttpRequest(
             callback(HttpResponse::newHttpJsonResponse(respJson));
         }
 
-
-        //crear clase ---------------------------------------------------------
+     //crear clase ---------------------------------------------------------
         else if (req->path() == "/profesor/clases" && req->method() == Post) 
         {   
             //esta linea maligna  verifica si existe json si curso_id es parte de json 
@@ -104,7 +105,7 @@ void ProfesorController::asyncHandleHttpRequest(
         {
             throw std::runtime_error("No tienes permiso para crear clases en este curso");
         }
-        //si todas estas vlaidaciones no se ejecutan, ahora si viene la maldad:
+                 //si todas estas vlaidaciones no se ejecutan, ahora si viene la maldad:
 
             auto cursoId = json->get("curso_id" , "0").asInt();
             auto titulo = json->get("titulo", "").asString();
@@ -125,6 +126,121 @@ void ProfesorController::asyncHandleHttpRequest(
             
             callback(HttpResponse::newHttpJsonResponse(respData));
         }
+
+
+    // Eliminar curso --------------------------------
+        else if (req->path() == "/profesor/cursos" && req->method() == Delete) 
+        {
+            auto cursoId = json->get("curso_id", 0).asInt();
+    
+         // Verificar que el profesor es dueño del curso
+            auto curso = CursoService::obtenerCursoPorId(cursoId);
+            if (!curso || curso->getProfesorId() != userId) 
+            {
+                throw std::runtime_error("No tienes permiso para eliminar este curso");
+            }
+    
+            bool success = CursoService::eliminarCurso(cursoId);
+    
+            Json::Value respJson;
+            respJson["status"] = success ? "success" : "error";
+            respJson["message"] = success ? "Curso eliminado" : "Error al eliminar curso";
+    
+            auto resp = HttpResponse::newHttpJsonResponse(respJson);
+            resp->setStatusCode(success ? k200OK : k500InternalServerError);
+            callback(resp);
+        }
+
+    
+    // Expulsar estudiante ------------------------------------------------------------
+        else if (req->path() == "/profesor/cursos/expulsar" && req->method() == Post)
+        {
+            auto cursoId = json->get("curso_id", 0).asInt();
+            auto estudianteId = json->get("estudiante_id", 0).asInt();
+    
+        // Verificar permisos
+            auto curso = CursoService::obtenerCursoPorId(cursoId);
+            if (!curso || curso->getProfesorId() != userId)
+            {
+                throw std::runtime_error("No tienes permiso para esta acción");
+            }
+    
+            bool success = CursoService::expulsarEstudiante(cursoId, estudianteId);
+    
+            Json::Value respJson;
+            respJson["status"] = success ? "success" : "error";
+            respJson["message"] = success ? "Estudiante expulsado" : "Error al expulsar estudiante";
+
+            auto resp = HttpResponse::newHttpJsonResponse(respJson);
+            resp->setStatusCode(success ? k200OK : k500InternalServerError);
+            callback(resp);
+        }
+
+
+
+    // Actualizar URL de clase -------------------------
+        else if (req->path() == "/profesor/clases/url" && req->method() == Put) {
+            auto claseId = json->get("clase_id", 0).asInt();
+            auto nuevaUrl = json->get("url", "").asString();
+    
+        // Verificar permisos
+            auto clase = ClaseService::obtenerClasePorId(claseId);
+            if (!clase) 
+            {
+                throw std::runtime_error("Clase no encontrada");
+            }
+    
+            auto curso = CursoService::obtenerCursoPorId(clase->getCursoId());
+            if (!curso || curso->getProfesorId() != userId) 
+            {      
+                throw std::runtime_error("No tienes permiso para modificar esta clase");
+            }   
+    
+            bool success = ClaseService::actualizarUrlClase(claseId, nuevaUrl);
+    
+            Json::Value respJson;
+            respJson["status"] = success ? "success" : "error";
+            respJson["message"] = success ? "URL actualizada" : "Error al actualizar URL";
+    
+            auto resp = HttpResponse::newHttpJsonResponse(respJson);
+            resp->setStatusCode(success ? k200OK : k500InternalServerError);
+          callback(resp);
+        }
+
+
+
+        // Actualizar perfil (nombre y contraseña)
+        else if (req->path() == "/profesor/perfil" && req->method() == Put) {
+            auto nuevoNombre = json->get("nombre", "").asString();
+            auto nuevoEmail = json->get("email", "").asString();
+            auto nuevaPassword = json->get("password", "").asString();
+    
+            if (nuevoNombre.empty() && nuevoEmail.empty() && nuevaPassword.empty()) 
+            {
+                throw std::runtime_error("No hay datos para actualizar");
+            }
+    
+            auto usuario = UsuarioService::obtenerPorId(userId);
+            if (!usuario) 
+            {
+                throw std::runtime_error("Usuario no encontrado");
+            }
+    
+            bool success = UsuarioService::actualizarUsuario(
+            userId,
+            nuevoNombre.empty() ? std::nullopt : std::optional<std::string>(nuevoNombre),
+            nuevoEmail.empty() ? std::nullopt : std::optional<std::string>(nuevoEmail),
+            nuevaPassword.empty() ? std::nullopt : std::optional<std::string>(Utils::hashPassword(nuevaPassword)));
+    
+            Json::Value respJson;
+            respJson["status"] = success ? "success" : "error";
+            respJson["message"] = success ? "Perfil actualizado" : "Error al actualizar perfil";
+            
+            auto resp = HttpResponse::newHttpJsonResponse(respJson);
+            resp->setStatusCode(success ? k200OK : k500InternalServerError);
+            callback(resp);
+        }
+
     } catch (const std::exception& e) {
         Json::Value errorResp;
         errorResp["status"] = "error";

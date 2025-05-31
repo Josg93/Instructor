@@ -10,7 +10,7 @@ private:
     std::vector<std::shared_ptr<Curso>> cursosImpartidos;
 
 public:
-    Profesor(const std::string& nombre, const std::string& password);
+    Profesor(const std::string& nombre,const std::string& email ,const std::string& password);
     ~Profesor() override = default;
 
     std::string getTipo() const override;

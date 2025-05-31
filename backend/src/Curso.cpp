@@ -11,12 +11,31 @@ Curso::Curso(const std::string& nombre, int profesorId)
 int Curso::getId() const { return id; }
 std::string Curso::getNombre() const { return nombre; }
 int Curso::getProfesorId() const { return profesorId; }
+std::vector<std::tuple<int,float,float,float,float>>& Curso::getEstudiantes() {return estudiantes;}
 
 
 // -------------- Inscribir estudiante en el curso 
 void Curso::inscribirEstudiante(int estudianteId) {
     estudiantes.emplace_back(estudianteId, 0.0f, 0.0f, 0.0f, 0.0f);
 }
+
+bool Curso::EliminarEstudiante(int estudianteId)
+ {
+    bool succsess = false;
+    for (const auto& est : estudiantes) {
+        if (std::get<0>(est) == estudianteId)
+        {
+            
+            succsess = true;
+        }
+    }
+    if(!succsess)
+    {
+        return false;
+    }
+
+
+ }
 
 // ---------------------- Verificar si el estudiante esta inscrito 
 bool Curso::estaInscrito(int estudianteId) const {

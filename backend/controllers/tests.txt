@@ -71,3 +71,8 @@ curl -X POST http://localhost:5555/estudiante/cursos \
   -d '{"curso_id": 1}'
 
 
+
+
+
+curl -X GET http://localhost:5555/usuarios/ \
+  -H "Content-Type: applicatio/json" \

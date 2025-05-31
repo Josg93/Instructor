@@ -5,5 +5,5 @@
 
 class AuthService {
 public:
-    static std::optional<std::string> login(const std::string& nombre, const std::string& password);
+    static std::optional<std::string> login(const std::string& nombre,const std::string& email, const std::string& password);
 };

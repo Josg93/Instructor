@@ -9,7 +9,7 @@ private:
     std::vector<std::weak_ptr<Curso>> cursosInscritos;
 
 public:
-    Estudiante(const std::string& nombre, const std::string& password);
+    Estudiante(const std::string& nombre,const std::string& email , const std::string& password);
     ~Estudiante() override = default;
 
     std::string getTipo() const override;

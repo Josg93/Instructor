@@ -19,7 +19,8 @@ std::vector<std::string> FileDatabase::readAll(const std::string& filename) {
 }
 
 void FileDatabase::update(const std::string& filename, 
-                        const std::vector<std::string>& lines) {
+                        const std::vector<std::string>& lines) 
+{
     std::ofstream file("./data/" + filename, std::ios::trunc);
     if (!file) throw std::runtime_error("Error al actualizar archivo: " + filename);
     for (const auto& line : lines) {
@@ -29,7 +30,8 @@ void FileDatabase::update(const std::string& filename,
 
 template<typename T>
 std::vector<T> FileDatabase::loadAll(const std::string& filename, 
-                                   std::function<T(const std::string&)> parser) {
+                                   std::function<T(const std::string&)> parser)
+{
     std::vector<T> items;
     auto lines = readAll(filename);
     for (const auto& line : lines) {
@@ -41,13 +43,17 @@ std::vector<T> FileDatabase::loadAll(const std::string& filename,
 template<typename T>
 void FileDatabase::saveAll(const std::string& filename, 
                          const std::vector<T>& items,
-                         std::function<std::string(const T&)> serializer) {
+                         std::function<std::string(const T&)> serializer) 
+{
     std::vector<std::string> lines;
     for (const auto& item : items) {
         lines.push_back(serializer(item));
     }
     update(filename, lines);
 }
+
+
+
 
 // Explicit template instantiations
 template std::vector<std::shared_ptr<Usuario>> FileDatabase::loadAll<std::shared_ptr<Usuario>>(

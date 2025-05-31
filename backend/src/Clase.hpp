@@ -21,5 +21,6 @@ public:
     std::string getUrlYouTube() const;
     int getCursoId() const;
 
+    void setUrlYouTube(const std::string& nuevaUrl);
     void setId(int id_){ this->id = id_;}
 };
