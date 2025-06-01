@@ -4,7 +4,13 @@
 int Curso::ultimoId = 0;
 
 Curso::Curso(const std::string& nombre, int profesorId)
-    : id(++ultimoId), nombre(nombre), profesorId(profesorId) {}
+    : id(++ultimoId), nombre(nombre), profesorId(profesorId) 
+    {
+        if(profesorId < -1)
+        {
+            throw std::invalid_argument("ID de profesor inválido");
+        }
+    }
 
 
 //----------------- getters --------------------
@@ -21,20 +27,13 @@ void Curso::inscribirEstudiante(int estudianteId) {
 
 bool Curso::EliminarEstudiante(int estudianteId)
  {
-    bool succsess = false;
     for (const auto& est : estudiantes) {
         if (std::get<0>(est) == estudianteId)
-        {
-            
-            succsess = true;
+        {   
+            return true;
         }
     }
-    if(!succsess)
-    {
-        return false;
-    }
-
-
+    return false;
  }
 
 // ---------------------- Verificar si el estudiante esta inscrito 
@@ -70,12 +69,14 @@ void Curso::asignarNota(int estudianteId, int numeroNota, float nota) {
 // ------------------------ Obtener notas de un estudiante -------------
 std::tuple<float, float, float, float> Curso::obtenerNotas(int estudianteId) const 
 {
-    for (const auto& est : estudiantes) {
-        if (std::get<0>(est) == estudianteId) {
+    for (const auto& est : estudiantes) 
+    {
+        if (std::get<0>(est) == estudianteId)
+        {
             return {std::get<1>(est), std::get<2>(est), std::get<3>(est), std::get<4>(est)};
         }
     }
-    throw std::invalid_argument("Estudiante no inscrito");
+    return {0.0f, 0.0f, 0.0f, 0.0f};
 }
 
 

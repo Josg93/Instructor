@@ -1,4 +1,5 @@
 #include "UsuarioService.hpp"
+#include "CursoService.hpp"
 #include "Estudiante.hpp"
 #include "Profesor.hpp"
 #include "Utils.hpp"
@@ -20,6 +21,10 @@ bool UsuarioService::registrarUsuario(const std::string& nombre,
         if (u->getEmail() == email) return false;
     }
 
+    if(nombre == "" || email == "")
+    {
+        return false;
+    }
     if (tipo != "estudiante" && tipo != "profesor") {
         return false;
     }
@@ -40,6 +45,25 @@ bool UsuarioService::registrarUsuario(const std::string& nombre,
     return true;
 }
 
+bool UsuarioService::eliminarUsuario(int usuarioId) {
+    auto it = std::remove_if(usuarios.begin(), usuarios.end(),
+        [usuarioId](const auto& u) { return u->getId() == usuarioId; });
+    
+    if (it != usuarios.end()) {
+        usuarios.erase(it, usuarios.end());
+        saveUsuarios();
+        
+        // Si es profesor, eliminar sus cursos
+        if (auto profesor = std::dynamic_pointer_cast<Profesor>(*it)) {
+            auto cursos = CursoService::listarCursosPorProfesor(usuarioId);
+            for (auto& curso : cursos) {
+                CursoService::eliminarCurso(curso->getId());
+            }
+        }
+        return true;
+    }
+    return false;
+}
 
 
 bool UsuarioService::actualizarUsuario(int usuarioId,
@@ -67,6 +91,29 @@ bool UsuarioService::actualizarUsuario(int usuarioId,
     return true;
 }
 
+//funcion de autenticacion, VERIFICA QUE EL USUARIO ESTÉ INSCRITO
+std::optional<std::shared_ptr<Usuario>> UsuarioService::autenticar(const std::string& nombre,
+                                                                    const std::string& email, 
+                                                                    const std::string& password) 
+{
+    if(usuarios.empty())
+    {
+        loadUsuarios();
+    }
+
+    auto it = std::find_if(usuarios.begin(), usuarios.end(), [&](const auto& u) { 
+        return u->getNombre() == nombre && u->getEmail() == email , Utils::verifyPassword(password, u->getPassword());
+    });
+    return it != usuarios.end() ? std::make_optional(*it) : std::nullopt;
+}
+
+
+std::vector<std::shared_ptr<Usuario>> UsuarioService::obtenerUsuarios() {
+    if (usuarios.empty()) {
+        loadUsuarios();
+    }
+    return usuarios;
+}
 
 
 //BUSCA ENTRE LOS USUARIOS POR ID
@@ -92,22 +139,12 @@ std::optional<std::shared_ptr<Usuario>> UsuarioService::obtenerPorEmail(std::str
         return std::nullopt;
     }
 
-    auto it = std::find_if(usuarios.begin() , usuarios.end() , [email](const auto& u){ return u->getEmail() == email});
+    auto it = std::find_if(usuarios.begin() , usuarios.end() , [email](const auto& u){ return u->getEmail() == email;});
 
     return it != usuarios.end() ? std::make_optional(*it) : std::nullopt;
 } 
 
 
-//funcion de autenticacion, VERIFICA QUE EL USUARIO ESTÉ INSCRITO
-std::optional<std::shared_ptr<Usuario>> UsuarioService::autenticar(const std::string& nombre,
-                                                                    const std::string& email, 
-                                                                    const std::string& password) 
-{
-    auto it = std::find_if(usuarios.begin(), usuarios.end(), [&](const auto& u) { 
-        return u->getNombre() == nombre && u->getEmail() == email , Utils::verifyPassword(password, u->getPassword());
-    });
-    return it != usuarios.end() ? std::make_optional(*it) : std::nullopt;
-}
 
 
 //Listar techaers
@@ -134,9 +171,9 @@ void UsuarioService::loadUsuarios() {
         std::getline(ss, password);
         
         if (tipo == "profesor") {
-            return std::make_shared<Profesor>(nombre, password);
+            return std::make_shared<Profesor>(nombre, email, password);
         } else {
-            return std::make_shared<Estudiante>(nombre, password);
+            return std::make_shared<Estudiante>(nombre, email ,password);
         }
     };
     
@@ -145,7 +182,7 @@ void UsuarioService::loadUsuarios() {
 
 void UsuarioService::saveUsuarios() {
     auto serializer = [](const std::shared_ptr<Usuario>& u) -> std::string {
-        return u->getTipo() + "," + u->getNombre() + "," + u->getEmail() + u->getPassword();
+        return u->getTipo() + "," + u->getNombre() + "," + u->getEmail() + "," + u->getPassword();
     };
     
     FileDatabase::saveAll<std::shared_ptr<Usuario>>("usuarios.txt", usuarios, serializer);
@@ -161,9 +198,7 @@ void UsuarioService::saveUsuarios() {
 std::vector<std::shared_ptr<Usuario>> UsuarioService::usuarios;
 
 
-std::vector<std::shared_ptr<Usuario>> UsuarioService::obtenerUsuarios() {
-    return usuarios;
-}
+
 
 //REGISTRAR USUARIOS MANITO
 bool UsuarioService::registrarUsuario(const std::string& nombre, 

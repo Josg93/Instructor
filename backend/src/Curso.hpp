@@ -18,7 +18,7 @@ private:
     static int ultimoId;
 
 public:
-    Curso(const std::string& nombre, int profesorId);
+    Curso(const std::string& nombre, int profesorId = -1);
     
     // Getters
     int getId() const;
@@ -40,4 +40,6 @@ public:
     const std::vector<std::shared_ptr<Clase>>& getClases() const;
     
     void setId(int id_){ this->id = id_;}
+    void setNombre(const std::string& nuevoNombre) { nombre = nuevoNombre; }
+    void setProfesorId(int id){profesorId = id;}
 };

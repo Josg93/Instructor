@@ -1,14 +1,11 @@
-#include <bcrypt/BCrypt.hpp>
+#pragma once
 #include <string>
+#include <openssl/evp.h>
+#include <iomanip>
+#include <sstream>
 
 namespace Utils {
-    std::string hashPassword(const std::string& password) 
-    {
-        return BCrypt::generateHash(password);
-    }
-
-    bool verifyPassword(const std::string& password, const std::string& hash) 
-    {
-        return BCrypt::validatePassword(password, hash);
-    }
+    // Declaraciones solamente
+    std::string hashPassword(const std::string& password);
+    bool verifyPassword(const std::string& password, const std::string& hash);
 }

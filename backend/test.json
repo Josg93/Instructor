@@ -1,0 +1,42 @@
+{
+    "info": {
+      "_postman_id": "a1b2c3d4-e5f6-7890",
+      "name": "API Escuela - Localhost:5555",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+      {
+        "name": "1️⃣ Autenticación",
+        "item": [
+          {
+            "name": "Registro Profesor",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"nombre\": \"profesor1\",\n  \"email\": \"profesor1@escuela.com\",\n  \"password\": \"clave123\",\n  \"tipo\": \"profesor\"\n}"
+              },
+              "url": {
+                "raw": "http://localhost:5555/auth/registro",
+                "host": ["localhost"],
+                "port": "5555",
+                "path": ["auth","registro"]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "variable": [
+      {
+        "key": "base_url",
+        "value": "http://localhost:5555"
+      }
+    ]
+  }

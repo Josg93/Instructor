@@ -30,6 +30,7 @@ set(SOURCES
     src/Curso.cpp
     src/Clase.cpp
     src/FileDatabase.cpp
+    src/Utils.cpp
     services/UsuarioService.cpp
     services/CursoService.cpp
     services/ClaseService.cpp

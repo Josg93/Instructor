@@ -11,5 +11,6 @@ class AuthController : public drogon::HttpSimpleController<AuthController>
     PATH_LIST_BEGIN
         PATH_ADD("/auth/registro", Post);
         PATH_ADD("/auth/login", Post);
+        PATH_ADD("/auth/cuenta", Delete);
     PATH_LIST_END
 };

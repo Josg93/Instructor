@@ -13,7 +13,7 @@ protected:
     static int ultimoId;
 
 public:
-    Usuario(const std::string& nombre, const std::string email , const std::string& password);
+    Usuario(const std::string& nombre, const std::string& email, const std::string& password);
     virtual ~Usuario() = default;
 
     // Getters

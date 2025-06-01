@@ -8,10 +8,9 @@ std::vector<std::shared_ptr<Clase>> ClaseService::clases;
 std::shared_ptr<Clase> ClaseService::crearClase(const std::string& titulo, const std::string& contenido, const std::string& url, int cursoId) {
     if (clases.empty()) loadClases();
     
-    // Resto de la lógica permanece igual
-     auto curso = CursoService::obtenerCursoPorId(cursoId);
+    auto curso = CursoService::obtenerCursoPorId(cursoId);
     if (!curso) {
-        throw std::runtime_error("El curso no existe");
+        return nullptr; 
     }
     
     // llama al constructor de Clase y crea una clase maligna
@@ -23,6 +22,22 @@ std::shared_ptr<Clase> ClaseService::crearClase(const std::string& titulo, const
     
     return clase;
 }
+
+
+
+bool ClaseService::eliminarClase(int claseId) {
+    auto it = std::remove_if(clases.begin(), clases.end(),
+        [claseId](const auto& c) { return c->getId() == claseId; });
+    
+    if (it != clases.end()) {
+        clases.erase(it, clases.end());
+        saveClases();
+        return true;
+    }
+    return false;
+}
+
+
 
 
 

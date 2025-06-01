@@ -52,32 +52,56 @@ void EstudianteController::asyncHandleHttpRequest(const HttpRequestPtr& req,  st
             callback(HttpResponse::newHttpJsonResponse(array));
         }
 
-        //Obtener Notas del estudiante
+        //VER NOTAS Obtener Notas del estudiante
         else if (req->path() == "/estudiante/notas" && req->method() == Get) 
-        { 
-            auto cursoId = json->get("curso_id" ,0).asInt();
-            auto notas = CursoService::obtenerNotas(cursoId, userId);
-            
-            Json::Value response;
-            auto resp = HttpResponse::newHttpJsonResponse(response);
-            if (notas) 
-            {
-                response["status"] = "success";
-                response["notas"] = Json::Value(Json::arrayValue);
-                auto [n1, n2, n3, n4] = notas.value();
-                response["nota 1"].append(n1);
-                response["nota 2"].append(n2);
-                response["nota 3"].append(n3);
-                response["nota 4"].append(n4);
-            } else 
-            {
-                response["status"] = "error";
-                response["message"] = "No se encontraron notas";
-                auto resp = HttpResponse::newHttpJsonResponse(response);
-                resp->setStatusCode(drogon::HttpStatusCode::k500InternalServerError);
+{ 
+        try 
+        {
+            // Obtener parámetro
+            auto cursoIdStr = req->getParameter("curso_id");
+            if(cursoIdStr.empty()) {
+                throw std::runtime_error("Se requiere el parámetro curso_id");
             }
+            int cursoId = std::stoi(cursoIdStr);
+
+            // Verificar inscripción primero
+            if(!CursoService::estaInscrito(userId, cursoId)) {
+                throw std::runtime_error("No estás inscrito en este curso");
+            }
+
+            // Obtener notas
+            auto notas = CursoService::obtenerNotas(cursoId, userId);
+
+            Json::Value response;
+            if (notas) {
+                response["status"] = "success";
+                auto [n1, n2, n3, n4] = notas.value();
+                response["notas"] = Json::objectValue;
+                response["notas"]["n1"] = n1;
+                response["notas"]["n2"] = n2;
+                response["notas"]["n3"] = n3;
+                response["notas"]["n4"] = n4;
+            } else {
+                // Si no hay notas registradas, devolver ceros
+                response["status"] = "success";
+                response["notas"] = Json::objectValue;
+                response["notas"]["n1"] = 0.0;
+                response["notas"]["n2"] = 0.0;
+                response["notas"]["n3"] = 0.0;
+                response["notas"]["n4"] = 0.0;
+            }
+
+             callback(HttpResponse::newHttpJsonResponse(response));
+
+        } catch (const std::exception& e) {
+            Json::Value error;
+            error["status"] = "error";
+            error["message"] = e.what();
+            auto resp = HttpResponse::newHttpJsonResponse(error);
+            resp->setStatusCode(drogon::HttpStatusCode::k400BadRequest);
             callback(resp);
         }
+}
 
         // Ver Clases
         else if (req->path() == "/estudiante/clases/ver" && req->method() == Get) 

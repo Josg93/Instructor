@@ -53,6 +53,51 @@ void FileDatabase::saveAll(const std::string& filename,
 }
 
 
+std::vector<std::tuple<int, int, float, float, float, float>> 
+FileDatabase::loadNotas(const std::string& filename) {
+    auto lines = readAll(filename);
+    std::vector<std::tuple<int, int, float, float, float, float>> notas;
+    
+    for (const auto& line : lines) {
+        std::istringstream ss(line);
+        std::string values[6];
+        
+        for (int i = 0; i < 6; ++i) {
+            if (!std::getline(ss, values[i], ',')) {
+                throw std::runtime_error("Formato de nota inválido");
+            }
+        }
+        
+        notas.emplace_back(
+            std::stoi(values[0]), // curso_id
+            std::stoi(values[1]), // estudiante_id
+            std::stof(values[2]), // nota1
+            std::stof(values[3]), // nota2
+            std::stof(values[4]), // nota3
+            std::stof(values[5])  // nota4
+        );
+    }
+    
+    return notas;
+}
+
+void FileDatabase::saveNotas(const std::string& filename,
+                           const std::vector<std::tuple<int, int, float, float, float, float>>& notas) {
+    std::vector<std::string> lines;
+    for (const auto& nota : notas) {
+        std::stringstream ss;
+        ss << std::get<0>(nota) << ","
+           << std::get<1>(nota) << ","
+           << std::get<2>(nota) << ","
+           << std::get<3>(nota) << ","
+           << std::get<4>(nota) << ","
+           << std::get<5>(nota);
+        lines.push_back(ss.str());
+    }
+    update(filename, lines);
+}
+
+
 
 
 // Explicit template instantiations

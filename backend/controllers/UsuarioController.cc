@@ -8,7 +8,7 @@ void UsuarioController::asyncHandleHttpRequest(
 ) {
     try {
         
-        auto usuarios = UsuarioService::listarUsuarios();
+        auto usuarios = UsuarioService::obtenerUsuarios();
         Json::Value array(Json::arrayValue);
         
         for (const auto& u : usuarios) {
@@ -24,6 +24,9 @@ void UsuarioController::asyncHandleHttpRequest(
         Json::Value errorResp;
         errorResp["status"] = "error";
         errorResp["message"] = e.what();
-        callback(HttpResponse::newHttpJsonResponse(errorResp));
+
+        auto resp = HttpResponse::newHttpJsonResponse(errorResp);
+        resp->setStatusCode(drogon::HttpStatusCode::k500InternalServerError);
+        callback(resp);
     }
 }

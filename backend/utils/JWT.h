@@ -4,12 +4,11 @@
 
 class JWT {
 public:
-    static std::optional<int> validarToken(const HttpRequestPtr& req) {
+    static std::optional<int> validarToken(const HttpRequestPtr& req)
+    {
         try {
             auto authHeader = req->getHeader("Authorization");
-            if (authHeader.empty() || authHeader.find("Bearer ") != 0) {
-                return std::nullopt;
-            }
+            if (authHeader.empty() || authHeader.find("Bearer ") != 0) {return std::nullopt; }
             
             auto token = authHeader.substr(7); // Elimina "Bearer "
             auto decoded = jwt::decode(token);

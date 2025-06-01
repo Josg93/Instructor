@@ -1,18 +1,22 @@
 ///PROFESOR
 curl -X POST http://localhost:5555/auth/registro \
   -H "Content-Type: application/json" \
-  -d '{
-    "nombre": "profesor1",
-    "password": "123456",
-    "tipo": "profesor"
-  }'
+  -d '{"nombre":"profesor1", "password":"clave123", "email":"example@gmail.com" , "tipo":"profesor"}'
+
+//Estudiante:
+curl -X POST http://localhost:5555/auth/registro \
+  -H "Content-Type: application/json" \
+  -d '{"nombre":"estudiante1","email":"example2@gmail.com" ,"password":"clave456", "tipo":"estudiante"}'
+
+
 
 //login
   curl -X POST http://localhost:5555/auth/login \
   -H "Content-Type: application/json" \
   -d '{
-    "nombre": "profesor1",
-    "password": "123456"
+    "nombre": "Danae",
+    "email":"Danap@gmail.com",
+    "password": "1304"
   }'
 
 
@@ -23,16 +27,25 @@ curl -X POST http://localhost:5555/auth/registro \
   -H "Authorization: Bearer TOKENDEPROFESOR" \
   -d '{"nombre":"Matemáticas Avanzadas"}'
 
+//borrar curso
+curl -X DELETE http://localhost:5555/profesor/cursos \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{"curso_id":1}'
+
 //VER CURSOS DADOS
  curl -X GET http://localhost:5555/profesor/cursos \
   -H "Content-Type: application/Json" \
   -H "Authorization: Beare TokenDElprofe
 
 
+curl -X GET http://localhost:5555/profesor/cursos \
+  -H "Authorization: Bearer $TOKEN"
+
 
 /crear clase
 curl -X POST http://localhost:5555/profesor/clases \
-  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXUyJ9.eyJpZCI6IjEiLCJpc3MiOiJhdXRoMCIsInRpcG8iOiJwcm9mZXNvciJ9.IvNOwzyc0eUGgXySzfskczMi1m5VZZVAt1FojTlc_sA" \
+  -H "Authorization: Bearer token" \
   -H "Content-Type: application/json" \
   -d '{           
     "curso_id": 1,
@@ -41,26 +54,28 @@ curl -X POST http://localhost:5555/profesor/clases \
     "url_youtube": "https://youtu.be/ejemplo_ia"
   }'
 
-
-
-//crear estudiante
-curl -X POST http://localhost:5555/auth/registro \
+//Modificar Url
+curl -X PUT http://localhost:5555/profesor/clases/url \
   -H "Content-Type: application/json" \
-  -d '{
-    "nombre": "José",
-    "password": "TeAmoPingu",
-    "tipo": "estudiante"
-  }'
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{"clase_id":1, "url":"https://youtube.com/nueva-url"}'
 
-
-//login estudiante
-  curl -X POST http://localhost:5555/auth/login \
+//asignar notas
+curl -X PUT http://localhost:5555/profesor/notas \
   -H "Content-Type: application/json" \
-  -d '{
-    "nombre": "José",
-    "password": "TeAmoPingu"
-  }'
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{"curso_id":1, "estudiante_id":2, "numero_nota":1, "nota":4.5}'
 
+//expulsar
+curl -X POST http://localhost:5555/profesor/cursos/expulsar \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{"curso_id":1, "estudiante_id":2}'
+
+
+
+
+//ESTUDIATNE -------------------
 
 
 //Inscribirse a curso
@@ -73,6 +88,18 @@ curl -X POST http://localhost:5555/estudiante/cursos \
 
 
 
+//Obtener Usuarios
+curl -X GET http://localhost:5555/usuarios \
+  -H "Content-Type: application/json"
 
-curl -X GET http://localhost:5555/usuarios/ \
-  -H "Content-Type: applicatio/json" \
+
+
+
+
+   curl -X POST http://localhost:5555/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nombre": "Julio",
+    "email": "profesor1@escuela.com",
+    "password": "1234"
+  }'

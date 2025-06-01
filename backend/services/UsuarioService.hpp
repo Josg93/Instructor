@@ -19,7 +19,8 @@ public:
                                const std::string& password,
                                const std::string& email,
                                const std::string& tipo);
-    
+                               
+    static bool eliminarUsuario(int usuarioId);
     static std::vector<std::shared_ptr<Usuario>> obtenerUsuarios();
     static std::optional<std::shared_ptr<Usuario>> obtenerPorId(int id);
     static std::optional<std::shared_ptr<Usuario>> obtenerPorEmail(std::string& email);

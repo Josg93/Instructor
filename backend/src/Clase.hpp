@@ -23,4 +23,6 @@ public:
 
     void setUrlYouTube(const std::string& nuevaUrl);
     void setId(int id_){ this->id = id_;}
+    void setTitulo(const std::string& nuevoTitulo) { titulo = nuevoTitulo; }
+    void setContenido(const std::string& nuevoContenido){contenido = nuevoContenido;}
 };

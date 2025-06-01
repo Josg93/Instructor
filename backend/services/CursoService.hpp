@@ -7,11 +7,20 @@
 class CursoService {
 private:
     static std::vector<std::shared_ptr<Curso>> cursos;
+    static std::vector<std::tuple<int, int, float, float, float, float>> notasCache;
+    static std::vector<std::tuple<int, int>> CursoService::inscripcionesCache;
+   
+    
+public:
+    static void init();
+    
     static void loadCursos();
     static void saveCursos();
+    static void loadNotas();
     static void saveNotas();
+    static void saveInscripciones();
+    static void loadInscripciones();
 
-public:
     static std::shared_ptr<Curso> crearCurso(const std::string& nombre, int profesorId);
     static bool eliminarCurso(int cursoId);
     
@@ -28,4 +37,7 @@ public:
     
     static std::shared_ptr<Curso> obtenerCursoPorId(int id);
     static bool estaInscrito(int usuarioId , int cursoId);
+
+    static bool desasignarProfesor(int cursoId);
+    static bool asignarProfesor(int cursoId, int nuevoProfesorId);
 };
