@@ -1,6 +1,7 @@
 #include "AuthController.h"
 #include "UsuarioService.hpp"
 #include "JWT.h"
+#include "Utils.hpp"
 #include <jwt-cpp/jwt.h>
 
 void AuthController::asyncHandleHttpRequest(
@@ -42,6 +43,12 @@ void AuthController::asyncHandleHttpRequest(
                 auto password = json->get("password", "").asString();
                 auto tipo = json->get("tipo", "").asString();
                 
+                if (!Utils::validarEmail(email)) 
+                {
+                     throw std::runtime_error("El email no es valido");
+                }
+
+
                 bool success = UsuarioService::registrarUsuario(nombre, email, password, tipo);
 
                 if (!success) 
@@ -79,6 +86,11 @@ void AuthController::asyncHandleHttpRequest(
                 auto nombre = json->get("nombre", "").asString();
                 auto email = json->get("email", "").asString();
                 auto password = json->get("password", "").asString();
+
+                if (!Utils::validarEmail(email)) 
+                {
+                     throw std::runtime_error("El email no es valido");
+                }
                 
                 auto usuario = UsuarioService::autenticar(nombre, email, password);
                 
@@ -89,7 +101,7 @@ void AuthController::asyncHandleHttpRequest(
                         .set_type("JWS")
                         .set_payload_claim("id", jwt::claim(std::to_string(usuario.value()->getId())))
                         .set_payload_claim("tipo", jwt::claim(usuario.value()->getTipo()))
-                        .sign(jwt::algorithm::hs256{"ROPAINTERIOR"});
+                        .sign(jwt::algorithm::hs256{"secreto_ancestral_satanico"});
                     
                     Json::Value respJson;
                     respJson["status"] = "success";
@@ -101,10 +113,7 @@ void AuthController::asyncHandleHttpRequest(
                 }
                 else 
                 {
-                    errorResp["message"] = "Credenciales inválidas";
-                    auto resp = HttpResponse::newHttpJsonResponse(errorResp);
-                    resp->setStatusCode(drogon::HttpStatusCode::k401Unauthorized);
-                    callback(resp);
+                   throw std::runtime_error("Credenciales invalidas");
                 }
             }
             catch(const std::exception& e) 

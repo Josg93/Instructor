@@ -10,13 +10,23 @@ curl -X POST http://localhost:5555/auth/registro \
 
 
 
-//login
+//login profesor
   curl -X POST http://localhost:5555/auth/login \
   -H "Content-Type: application/json" \
   -d '{
-    "nombre": "Danae",
-    "email":"Danap@gmail.com",
-    "password": "1304"
+    "nombre": "profesor1",
+    "email":"example@gmail.com",
+    "password": "clave123"
+  }'
+
+
+//login estudiante
+  curl -X POST http://localhost:5555/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nombre": "estudiante1",
+    "email":"example2@gmail.com",
+    "password": "clave456"
   }'
 
 
@@ -36,12 +46,11 @@ curl -X DELETE http://localhost:5555/profesor/cursos \
 //VER CURSOS DADOS
  curl -X GET http://localhost:5555/profesor/cursos \
   -H "Content-Type: application/Json" \
-  -H "Authorization: Beare TokenDElprofe
+  -H "Authorization: Bearer TokenDElprofe \
 
-
+ver cursos por profesor
 curl -X GET http://localhost:5555/profesor/cursos \
-  -H "Authorization: Bearer $TOKEN"
-
+-H "Authorization: Bearer <token_jwt>"
 
 /crear clase
 curl -X POST http://localhost:5555/profesor/clases \
@@ -54,11 +63,25 @@ curl -X POST http://localhost:5555/profesor/clases \
     "url_youtube": "https://youtu.be/ejemplo_ia"
   }'
 
+
+//borrar clase
+curl -X DELETE http://localhost:5555/profesor/clases \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{"clase_id":1}'
+
 //Modificar Url
 curl -X PUT http://localhost:5555/profesor/clases/url \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TOKEN" \
   -d '{"clase_id":1, "url":"https://youtube.com/nueva-url"}'
+
+//Expulsar estudiante
+curl -X POST http://localhost:5555/profesor/cursos/expulsar \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{"curso_id":1, "estudiante_id":2}'
+
 
 //asignar notas
 curl -X PUT http://localhost:5555/profesor/notas \
@@ -66,12 +89,15 @@ curl -X PUT http://localhost:5555/profesor/notas \
   -H "Authorization: Bearer $TOKEN" \
   -d '{"curso_id":1, "estudiante_id":2, "numero_nota":1, "nota":4.5}'
 
-//expulsar
-curl -X POST http://localhost:5555/profesor/cursos/expulsar \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $TOKEN" \
-  -d '{"curso_id":1, "estudiante_id":2}'
+//mostrar notas estudiante y clases
+curl -X GET "http://localhost:5555/profesor/cursos/clases-notas?curso_id=1" \
+-H "Authorization: Bearer TU_TOKEN_JWT_AQUI" \
+-H "Content-Type: application/json"
 
+//mostrar clases
+curl -X GET "http://localhost:5555/profesor/mis-clases" \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXUyJ9.eyJpZCI6IjEiLCJpc3MiOiJhdXRoMCIsInRpcG8iOiJwcm9mZXNvciJ9.8-8uMXQzROkJfcOqoH8VpnfiQ92LwfTYJF8aOKnBgwY" \
+-H "Content-Type: application/json"
 
 
 
@@ -86,20 +112,32 @@ curl -X POST http://localhost:5555/estudiante/cursos \
   -d '{"curso_id": 1}'
 
 
+//ver cursos inscritos
+curl -X GET http://localhost:5555/estudiante/cursos \
+  -H "Authorization: Bearer $TOKEN_ESTUDIANTE"
+
+//desincribirse
+curl -X DELETE http://localhost:5555/estudiante/cursos/salir \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN_ESTUDIANTE" \
+  -d '{"curso_id":1}'
+
+
+//ver notas
+curl -X GET "http://localhost:5555/estudiante/notas?curso_id=1" \
+  -H "Authorization: Bearer $TOKEN_ESTUDIANTE"
+
+//ver clase
+curl -X GET "http://localhost:5555/estudiante/clases/ver?clase_id=1" \
+  -H "Authorization: Bearer $TOKEN_ESTUDIANTE"
+
+
 
 
 //Obtener Usuarios
 curl -X GET http://localhost:5555/usuarios \
   -H "Content-Type: application/json"
 
-
-
-
-
-   curl -X POST http://localhost:5555/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "nombre": "Julio",
-    "email": "profesor1@escuela.com",
-    "password": "1234"
-  }'
+//eliminar cuenta
+curl -X DELETE http://localhost:5555/auth/cuenta \
+  -H "Authorization: Bearer $TOKEN"

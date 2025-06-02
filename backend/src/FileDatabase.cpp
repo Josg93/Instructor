@@ -101,6 +101,14 @@ void FileDatabase::saveNotas(const std::string& filename,
 
 
 // Explicit template instantiations
+// Añade estas líneas al final del archivo, después de las otras instanciaciones
+template std::vector<std::tuple<int, int>> FileDatabase::loadAll<std::tuple<int, int>>(
+    const std::string&, std::function<std::tuple<int, int>(const std::string&)>);
+
+template void FileDatabase::saveAll<std::tuple<int, int>>(
+    const std::string&, const std::vector<std::tuple<int, int>>&, 
+    std::function<std::string(const std::tuple<int, int>&)>);
+
 template std::vector<std::shared_ptr<Usuario>> FileDatabase::loadAll<std::shared_ptr<Usuario>>(
     const std::string&, std::function<std::shared_ptr<Usuario>(const std::string&)>);
 

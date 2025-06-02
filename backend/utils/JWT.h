@@ -14,7 +14,7 @@ public:
             auto decoded = jwt::decode(token);
             
             auto verifier = jwt::verify()
-                .allow_algorithm(jwt::algorithm::hs256{"ROPAINTERIOR"})
+                .allow_algorithm(jwt::algorithm::hs256{"secreto_ancestral_satanico"})
                 .with_issuer("auth0");
             
             verifier.verify(decoded);

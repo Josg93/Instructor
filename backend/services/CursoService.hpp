@@ -6,12 +6,14 @@
 
 class CursoService {
 private:
-    static std::vector<std::shared_ptr<Curso>> cursos;
-    static std::vector<std::tuple<int, int, float, float, float, float>> notasCache;
-    static std::vector<std::tuple<int, int>> CursoService::inscripcionesCache;
+   
    
     
 public:
+    static std::vector<std::shared_ptr<Curso>> cursos;
+    static std::vector<std::tuple<int, int, float, float, float, float>> notasCache;
+    static std::vector<std::tuple<int, int>> inscripcionesCache;
+
     static void init();
     
     static void loadCursos();
@@ -31,6 +33,7 @@ public:
     static std::vector<std::shared_ptr<Curso>> listarCursos();
     static std::vector<std::shared_ptr<Curso>> listarCursosPorProfesor(int profesorId);
     static std::vector<std::shared_ptr<Curso>> listarCursosPorEstudiante(int estudianteId);
+    static std::vector<std::pair<int, std::string>> listarEstudiantesInscritos(int cursoId);
     
     static bool asignarNota(int cursoId, int estudianteId,int numeroNota, float nota);
     static std::optional<std::tuple<float, float, float, float>> obtenerNotas(int cursoId, int estudianteId);

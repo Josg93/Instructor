@@ -52,9 +52,11 @@ void EstudianteController::asyncHandleHttpRequest(const HttpRequestPtr& req,  st
             callback(HttpResponse::newHttpJsonResponse(array));
         }
 
+
+
         //VER NOTAS Obtener Notas del estudiante
-        else if (req->path() == "/estudiante/notas" && req->method() == Get) 
-{ 
+        else if (req->path() == "/estudiante/notas" && req->method() == Get)        
+        { 
         try 
         {
             // Obtener parámetro
@@ -113,13 +115,15 @@ void EstudianteController::asyncHandleHttpRequest(const HttpRequestPtr& req,  st
             int claseId = std::stoi(claseIdStr);
     
             auto clase = ClaseService::obtenerClasePorId(claseId);
-            if (!clase) {
+            if (!clase)
+            {
                 throw std::runtime_error("Clase no encontrada");
             }
 
             // Verificar que el estudiante está inscrito en el curso
             bool tieneAcceso = CursoService::estaInscrito(userId, clase->getCursoId());
-            if (!tieneAcceso) {
+            if (!tieneAcceso) 
+            {
                 throw std::runtime_error("No tienes acceso a esta clase");
             }
 

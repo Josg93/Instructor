@@ -45,25 +45,56 @@ bool UsuarioService::registrarUsuario(const std::string& nombre,
     return true;
 }
 
+
+
+
+
 bool UsuarioService::eliminarUsuario(int usuarioId) {
-    auto it = std::remove_if(usuarios.begin(), usuarios.end(),
-        [usuarioId](const auto& u) { return u->getId() == usuarioId; });
-    
-    if (it != usuarios.end()) {
-        usuarios.erase(it, usuarios.end());
-        saveUsuarios();
-        
-        // Si es profesor, eliminar sus cursos
-        if (auto profesor = std::dynamic_pointer_cast<Profesor>(*it)) {
-            auto cursos = CursoService::listarCursosPorProfesor(usuarioId);
-            for (auto& curso : cursos) {
-                CursoService::eliminarCurso(curso->getId());
-            }
+    // 1. Buscar el usuario antes de eliminarlo
+    auto usuario = obtenerPorId(usuarioId);
+    if (!usuario) return false;
+
+    // 2. Si es profesor, eliminar sus cursos (esto borra clases, notas e inscripciones)
+    if (auto profesor = std::dynamic_pointer_cast<Profesor>(*usuario)) {
+        auto cursos = CursoService::listarCursosPorProfesor(usuarioId);
+        for (auto& curso : cursos) {
+            CursoService::eliminarCurso(curso->getId());
         }
-        return true;
     }
-    return false;
+    // 3. Si es estudiante, eliminar sus notas e inscripciones
+    else if (auto estudiante = std::dynamic_pointer_cast<Estudiante>(*usuario)) {
+        // Eliminar notas del estudiante en todos los cursos
+        auto notas = CursoService::notasCache; // Acceder a la caché de notas
+        notas.erase(
+            std::remove_if(notas.begin(), notas.end(),
+                [usuarioId](const auto& n) { return std::get<1>(n) == usuarioId; }),
+            notas.end()
+        );
+        CursoService::saveNotas(); // Guardar cambios en notas.txt
+
+        // Eliminar inscripciones del estudiante
+        auto& inscripciones = CursoService::inscripcionesCache;
+        inscripciones.erase(
+            std::remove_if(inscripciones.begin(), inscripciones.end(),
+                [usuarioId](const auto& i) { return std::get<1>(i) == usuarioId; }),
+            inscripciones.end()
+        );
+        CursoService::saveInscripciones(); // Guardar cambios en inscripciones.txt
+    }
+
+    // 4. Eliminar al usuario de la lista y guardar cambios
+    usuarios.erase(
+        std::remove_if(usuarios.begin(), usuarios.end(),
+            [usuarioId](const auto& u) { return u->getId() == usuarioId; }),
+        usuarios.end()
+    );
+    saveUsuarios(); // Actualizar usuarios.txt
+
+    return true;
 }
+
+
+
 
 
 bool UsuarioService::actualizarUsuario(int usuarioId,
@@ -91,6 +122,10 @@ bool UsuarioService::actualizarUsuario(int usuarioId,
     return true;
 }
 
+
+
+
+
 //funcion de autenticacion, VERIFICA QUE EL USUARIO ESTÉ INSCRITO
 std::optional<std::shared_ptr<Usuario>> UsuarioService::autenticar(const std::string& nombre,
                                                                     const std::string& email, 
@@ -114,6 +149,9 @@ std::vector<std::shared_ptr<Usuario>> UsuarioService::obtenerUsuarios() {
     }
     return usuarios;
 }
+
+
+
 
 
 //BUSCA ENTRE LOS USUARIOS POR ID

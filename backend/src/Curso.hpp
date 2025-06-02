@@ -18,7 +18,7 @@ private:
     static int ultimoId;
 
 public:
-    Curso(const std::string& nombre, int profesorId = -1);
+    Curso(const std::string& nombre, int profesorId);
     
     // Getters
     int getId() const;

@@ -63,7 +63,9 @@ bool ClaseService::actualizarUrlClase(int claseId, const std::string& nuevaUrl) 
 }
 
 // -------------------------- Obtener Clases por Id ----------------------------
-std::shared_ptr<Clase> ClaseService::obtenerClasePorId(int id) {
+std::shared_ptr<Clase> ClaseService::obtenerClasePorId(int id)
+{
+    if(clases.empty()){loadClases();}
     auto it = std::find_if(clases.begin(), clases.end(), 
         [id](const auto& c) { return c->getId() == id; });
     return it != clases.end() ? *it : nullptr;

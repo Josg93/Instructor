@@ -163,6 +163,12 @@ bool CursoService::estaInscrito(int usuarioId, int cursoId)
 
 bool CursoService::expulsarEstudiante(int cursoId, int estudianteId) {
     // Eliminar de la cache de inscripciones
+    auto inscrito = CursoService::estaInscrito(estudianteId,cursoId);
+    if(!inscrito)
+    {
+        return false;
+    }
+
     inscripcionesCache.erase(
         std::remove_if(inscripcionesCache.begin(), inscripcionesCache.end(),
             [cursoId, estudianteId](const auto& i) {
@@ -240,6 +246,22 @@ std::vector<std::shared_ptr<Curso>> CursoService::listarCursosPorEstudiante(int 
     
     return resultado;
 }
+std::vector<std::pair<int, std::string>> CursoService::listarEstudiantesInscritos(int cursoId) {
+    std::vector<std::pair<int, std::string>> estudiantes;
+    for (const auto& [curso_id, estId] : inscripcionesCache) {
+        if (curso_id == cursoId) {
+            if (auto usuario = UsuarioService::obtenerPorId(estId)) {
+                estudiantes.emplace_back(estId, (*usuario)->getNombre());
+            }
+        }
+    }
+    return estudiantes;
+}
+
+
+
+
+
 
 //----------------- Metodo para que un profesor asigne una nota--------------
 bool CursoService::asignarNota(int cursoId, int estudianteId,int numeroNota, float nota) 
@@ -294,7 +316,7 @@ bool CursoService::desasignarProfesor(int cursoId) {
     if (!curso) return false;
     
     // Valor especial para indicar "Sin profesor" (podría ser -1 o 0)
-    curso->setProfesorId(-1); 
+    
     saveCursos();
     return true;
 }
@@ -408,15 +430,13 @@ void CursoService::loadInscripciones() {
 }
 
 void CursoService::saveInscripciones() {
-    auto serializer = [](const std::tuple<int, int>& insc) -> std::string {
+    auto serializer = [](const std::tuple<int, int>& insc) -> std::string 
+    {
         return std::to_string(std::get<0>(insc)) + "," + std::to_string(std::get<1>(insc));
     };
     
     FileDatabase::saveAll<std::tuple<int, int>>("inscripciones.txt", inscripcionesCache, serializer);
 }
-
-
-
 //-------------------------------------------------------------
 
 

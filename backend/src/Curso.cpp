@@ -4,13 +4,7 @@
 int Curso::ultimoId = 0;
 
 Curso::Curso(const std::string& nombre, int profesorId)
-    : id(++ultimoId), nombre(nombre), profesorId(profesorId) 
-    {
-        if(profesorId < -1)
-        {
-            throw std::invalid_argument("ID de profesor inválido");
-        }
-    }
+    : id(++ultimoId), nombre(nombre), profesorId(profesorId) {}
 
 
 //----------------- getters --------------------
