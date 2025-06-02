@@ -325,7 +325,8 @@ void ProfesorController::asyncHandleHttpRequest(
             if (!clase) throw std::runtime_error("Clase no encontrada");
 
             auto curso = CursoService::obtenerCursoPorId(clase->getCursoId());
-            if (!curso || curso->getProfesorId() != userId) {
+            if (!curso || curso->getProfesorId() != userId) 
+            {
                 throw std::runtime_error("No tienes permiso para modificar esta clase");
             }
 

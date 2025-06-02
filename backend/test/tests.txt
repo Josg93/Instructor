@@ -70,6 +70,13 @@ curl -X DELETE http://localhost:5555/profesor/clases \
   -H "Authorization: Bearer $TOKEN" \
   -d '{"clase_id":1}'
 
+//Modificar Nombre y Contenido
+curl -X http://localhost:5555/profesor/clases \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN \
+  -d '{"clase_id": 1, "titulo":"Estructuras de datos", "contenido": "vectores, arrays, listas y colas"}'
+
+
 //Modificar Url
 curl -X PUT http://localhost:5555/profesor/clases/url \
   -H "Content-Type: application/json" \

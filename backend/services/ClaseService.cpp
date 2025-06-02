@@ -66,6 +66,7 @@ bool ClaseService::actualizarUrlClase(int claseId, const std::string& nuevaUrl) 
 std::shared_ptr<Clase> ClaseService::obtenerClasePorId(int id)
 {
     if(clases.empty()){loadClases();}
+
     auto it = std::find_if(clases.begin(), clases.end(), 
         [id](const auto& c) { return c->getId() == id; });
     return it != clases.end() ? *it : nullptr;
@@ -73,7 +74,8 @@ std::shared_ptr<Clase> ClaseService::obtenerClasePorId(int id)
 
 // ------------------ GUARDAR Y CARGAR ELEMENTOS EN UN TXT --------------------
 void ClaseService::loadClases() {
-    auto parser = [](const std::string& line) -> std::shared_ptr<Clase> {
+    auto parser = [](const std::string& line) -> std::shared_ptr<Clase>
+    {
         std::istringstream ss(line);
         std::string sid, scurso, titulo, contenido, url;
         std::getline(ss, sid, ',');

@@ -16,8 +16,6 @@ class ProfesorController : public drogon::HttpSimpleController<ProfesorControlle
     PATH_ADD("/profesor/cursos" , Delete);
     PATH_ADD("/profesor/cursos/expulsar", Post);
     PATH_ADD("/profesor/cursos/nombre" , Put);
-    //PATH_ADD("/profesor/cursos/{curso_id}/clases-notas", Get);
-    PATH_ADD("/profesro/mis_clases", Get);
     PATH_ADD("/profesor/notas", Put);
     PATH_ADD("/profesor/clases", Post);
     PATH_ADD("/profesor/clases", Delete);
