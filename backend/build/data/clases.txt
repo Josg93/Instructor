@@ -1,1 +1,0 @@
-1,1,Redes Neuronales,Conceptos básicos de perceptrones,https://youtube.com/nueva-url

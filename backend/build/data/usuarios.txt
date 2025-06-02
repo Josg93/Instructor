@@ -1,3 +1,0 @@
-profesor,profesor1,example@gil.com,5ac0852e770506dcd80f1a36d20ba7878bf82244b836d9324593bd14bc56dcb5
-profesor,profesor1,example@gmail.com,5ac0852e770506dcd80f1a36d20ba7878bf82244b836d9324593bd14bc56dcb5
-estudiante,estudiante1,example2@gmail.com,ca8cc9fa7470c31c495c17f276152d9c9a4b06c20ecbfecffd65129f3de9b24d
